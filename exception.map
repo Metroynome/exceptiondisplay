@@ -1,9 +1,15 @@
 
 Discarded input sections
 
- .reginfo       0x00000000       0x18 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
+ .reginfo       0x00000000       0x18 C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
  .MIPS.abiflags
-                0x00000000       0x18 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
+                0x00000000       0x18 C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
+ .pdr           0x00000000       0x80 C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
+ .reginfo       0x00000000       0x18 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
+ .MIPS.abiflags
+                0x00000000       0x18 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
+ .pdr           0x00000000       0xe0 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
+ .comment       0x00000000       0x13 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
 
 Memory Configuration
 
@@ -12,60 +18,69 @@ Name             Origin             Length             Attributes
 
 Linker script and memory map
 
-                0x000c0000                        . = 0xc0000
+                0x000c8000                        . = 0xc8000
 
-.text           0x000c0000      0x7e0
+.text           0x000c8000      0x824
+ *(.text.entry)
+ .text.entry    0x000c8000       0x20 C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
+                0x000c8000                exceptionStart
  *(.text*)
- .text          0x000c0000       0xe0 C:\Users\Troy\AppData\Local\Temp\ccg7RIEV.o
-                0x000c0000                exception_entry
- .text          0x000c00e0      0x700 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
-                0x000c0558                exception_screen
+ .text          0x000c8020      0x100 C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
+                0x000c8020                exceptionEntry
+                0x000c80f0                exceptionSetTlb
+                0x000c8100                exceptionSetCommon
+                0x000c8110                exceptionFlushCache
+ .text          0x000c8120      0x704 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
+                0x000c8460                exceptionInstall
+                0x000c8534                exceptionScreen
 
-.rodata         0x000c07e0      0x4ed
+.rodata         0x000c8828      0x4cd
  *(.rodata*)
  .rodata.str1.8
-                0x000c07e0       0x56 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
- *fill*         0x000c0836        0x2 
- .rodata        0x000c0838      0x495 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
-                0x000c08b0                exception_stack_top
+                0x000c8828       0x3f C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
+ *fill*         0x000c8867        0x1 
+ .rodata        0x000c8868      0x48d C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
 
-.MIPS.abiflags  0x000c0cd0       0x18
- .MIPS.abiflags
-                0x000c0cd0       0x18 C:\Users\Troy\AppData\Local\Temp\ccg7RIEV.o
-
-.data           0x000c0ce8        0x0
+.data           0x000c8cf5        0x0
  *(.data*)
- .data          0x000c0ce8        0x0 C:\Users\Troy\AppData\Local\Temp\ccg7RIEV.o
- .data          0x000c0ce8        0x0 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
+ .data          0x000c8cf5        0x0 C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
+ .data          0x000c8cf5        0x0 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
+ *(.sdata*)
+                0x000c8d00                        . = ALIGN (0x10)
+                0x000c8d00                        __bss_start = .
 
-.bss            0x000c0cf0     0x28a0
+.bss            0x000c8d00     0x1100
  *(.bss*)
- .bss           0x000c0cf0        0x0 C:\Users\Troy\AppData\Local\Temp\ccg7RIEV.o
- .bss           0x000c0cf0     0x28a0 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
-                0x000c0cf0                exception_state
+ .bss           0x000c8d00      0x800 C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
+                0x000c9500                exceptionStackTop
+ .bss           0x000c9500      0x900 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
+                0x000c9500                exceptionContext
+                0x000c9530                exceptionState
+ *(.sbss*)
  *(COMMON)
-LOAD C:\Users\Troy\AppData\Local\Temp\ccg7RIEV.o
-LOAD C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
+                0x000c9e00                        . = ALIGN (0x10)
+                0x000c9e00                        exceptionMemoryEnd = .
+
+/DISCARD/
+ *(.reginfo)
+ *(.MIPS.abiflags)
+ *(.pdr)
+ *(.comment)
+ *(.note*)
+ *(.eh_frame*)
+                0x00000001                        ASSERT ((exceptionStart == 0xc8000), Horizon installer entry moved)
+                0x00000001                        ASSERT ((exceptionMemoryEnd <= 0xcb000), Exception payload exceeds Horizon reservation)
+LOAD C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
+LOAD C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
 OUTPUT(exception.elf elf32-nlittlemips)
-
-.reginfo        0x00000000       0x18
- .reginfo       0x00000000       0x18 C:\Users\Troy\AppData\Local\Temp\ccg7RIEV.o
-
-.pdr            0x00000000       0xe0
- .pdr           0x00000000       0x20 C:\Users\Troy\AppData\Local\Temp\ccg7RIEV.o
- .pdr           0x00000020       0xc0 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
 
 .gnu.attributes
                 0x00000000       0x10
  .gnu.attributes
-                0x00000000       0x10 C:\Users\Troy\AppData\Local\Temp\ccg7RIEV.o
+                0x00000000       0x10 C:\Users\Troy\AppData\Local\Temp\ccStikA0.o
  .gnu.attributes
-                0x00000010       0x10 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
+                0x00000010       0x10 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o
 
 .mdebug.abiN32  0x00000000        0x0
  .mdebug.abiN32
-                0x00000000        0x0 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
-
-.comment        0x00000000       0x12
- .comment       0x00000000       0x12 C:\Users\Troy\AppData\Local\Temp\cc85K9b0.o
-                                 0x13 (size before relaxing)
+                0x00000000        0x0 C:\Users\Troy\AppData\Local\Temp\ccljCjJA.o

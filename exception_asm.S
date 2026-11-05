@@ -1,62 +1,96 @@
 .set noreorder
 .set noat
+.section .text.entry,"ax",@progbits
+.align 4
+.globl exceptionStart
+exceptionStart:
+	j exceptionInstall
+	nop
+	.word 0x45584332
+	.word 1
+	.word exceptionContext
+	.word exceptionEntry
+	.word exceptionMemoryEnd
+	.word 0
+
 .text
 .align 4
-.globl exception_entry
-.ent exception_entry
-exception_entry:
-    addiu $sp, $sp, -16
-    sq    $k0, 0($sp)
-    lui   $k0, %hi(exception_state)
-    addiu $k0, $k0, %lo(exception_state)
-    sw    $at, 4($k0)
-    sw    $v0, 8($k0)
-    sw    $v1, 12($k0)
-    sw    $a0, 16($k0)
-    sw    $a1, 20($k0)
-    sw    $a2, 24($k0)
-    sw    $a3, 28($k0)
-    sw    $t0, 32($k0)
-    sw    $t1, 36($k0)
-    sw    $t2, 40($k0)
-    sw    $t3, 44($k0)
-    sw $12, 48($26)
-    sw $13, 52($26)
-    sw $14, 56($26)
-    sw $15, 60($26)
-    sw    $s0, 64($k0)
-    sw    $s1, 68($k0)
-    sw    $s2, 72($k0)
-    sw    $s3, 76($k0)
-    sw    $s4, 80($k0)
-    sw    $s5, 84($k0)
-    sw    $s6, 88($k0)
-    sw    $s7, 92($k0)
-    sw    $t8, 96($k0)
-    sw    $t9, 100($k0)
-    sw    $k1, 108($k0)
-    sw    $gp, 112($k0)
-    sw    $fp, 120($k0)
-    sw    $ra, 124($k0)
-    sw    $zero, 0($k0)
-    lq    $k1, 0($sp)
-    sw    $k1, 104($k0)
-    addiu $k1, $sp, 16
-    sw    $k1, 116($k0)
-    mfc0  $k1, $13
-    sw    $k1, 128($k0)
-    mfc0  $k1, $14
-    sw    $k1, 132($k0)
-    mfc0  $k1, $8
-    sw    $k1, 136($k0)
-    mfc0  $k1, $12
-    sw    $k1, 140($k0)
-    lui   $sp, %hi(exception_stack_top)
-    lw    $sp, %lo(exception_stack_top)($sp)
-    lui   $k1, %hi(exception_screen)
-    addiu $k1, $k1, %lo(exception_screen)
-    mtc0  $k1, $14
-    sync
-    eret
-    nop
-.end exception_entry
+.globl exceptionEntry
+.ent exceptionEntry
+exceptionEntry:
+	# Fatal capture must not use the interrupted stack. HI is no longer needed.
+	mthi $27
+	lui $27, %hi(exceptionState)
+	addiu $27, $27, %lo(exceptionState)
+	sw $26, 104($27)
+	mfhi $26
+	sw $26, 108($27)
+	sw $0, 0($27)
+	sw $1, 4($27)
+	sw $2, 8($27)
+	sw $3, 12($27)
+	sw $4, 16($27)
+	sw $5, 20($27)
+	sw $6, 24($27)
+	sw $7, 28($27)
+	sw $8, 32($27)
+	sw $9, 36($27)
+	sw $10, 40($27)
+	sw $11, 44($27)
+	sw $12, 48($27)
+	sw $13, 52($27)
+	sw $14, 56($27)
+	sw $15, 60($27)
+	sw $16, 64($27)
+	sw $17, 68($27)
+	sw $18, 72($27)
+	sw $19, 76($27)
+	sw $20, 80($27)
+	sw $21, 84($27)
+	sw $22, 88($27)
+	sw $23, 92($27)
+	sw $24, 96($27)
+	sw $25, 100($27)
+	sw $28, 112($27)
+	sw $29, 116($27)
+	sw $30, 120($27)
+	sw $31, 124($27)
+	mfc0 $26, $13
+	sw $26, 128($27)
+	mfc0 $26, $14
+	sw $26, 132($27)
+	mfc0 $26, $8
+	sw $26, 136($27)
+	mfc0 $26, $12
+	sw $26, 140($27)
+	lui $29, %hi(exceptionStackTop)
+	addiu $29, $29, %lo(exceptionStackTop)
+	lui $26, %hi(exceptionScreen)
+	addiu $26, $26, %lo(exceptionScreen)
+	mtc0 $26, $14
+	sync.p
+	eret
+	nop
+.end exceptionEntry
+
+# PS2SDK syscall ABI: v1 selects the kernel service; a0/a1 are arguments.
+.macro kernelCall name, number
+.globl \name
+.ent \name
+\name:
+	addiu $3, $0, \number
+	syscall
+	jr $31
+	nop
+.end \name
+.endm
+kernelCall exceptionSetTlb, 0x0d
+kernelCall exceptionSetCommon, 0x0e
+kernelCall exceptionFlushCache, 0x64
+
+.section .bss,"aw",@nobits
+.align 4
+exceptionStack:
+	.space 2048
+.globl exceptionStackTop
+exceptionStackTop:
